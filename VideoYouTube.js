@@ -1,28 +1,40 @@
-import { useCallback, useState } from "react";
-import { Button, Alert, View } from "react-native";
+import { useRef, useState } from "react";
+// import { Button, Alert, View } from "react-native";
 import YoutubePlayer from "react-native-youtube-iframe";
 
+function GetTime(playerRef) {
+  playerRef.current?.getCurrentTime().then((currentTime) => {
+    return currentTime;
+  });
+}
+
 export default function VideoYouTube(props) {
+  const playerRef = useRef();
+  // typescript
+  // const playerRef = useRef<YoutubeIframeRef>(null);
+
   const [playing, setPlaying] = useState(false);
+  const [timecode, setTimecode] = useState();
+  let timerId = setInterval(() => {
+    setTimecode(GetTime(playerRef));
+  }, 100);
 
-  const onStateChange = useCallback((state) => {
-    if (state === "ended") {
-      setPlaying(false);
-      Alert.alert("video has finished playing!");
-    }
-  }, []);
+  let total = playerRef.current
+    ?.getDuration()
+    .then((getDuration) => console.log({ getDuration }));
 
-  const togglePlaying = useCallback(() => {
-    setPlaying((prev) => !prev);
-  }, []);
   return (
-    <View>
+    <>
       <YoutubePlayer
-        height={props.width}
+        ref={playerRef}
+        width={props.width}
         play={playing}
         videoId={props.lien}
-        onChangeState={onStateChange}
+        // onChangeState={onStateChange}
       />
-    </View>
+      <p>
+        {timecode}/{total}
+      </p>
+    </>
   );
 }
