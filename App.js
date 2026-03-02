@@ -7,7 +7,7 @@ export default function App() {
   return (
     <View style={styles.container}>
       <StatusBar style="auto" />
-      <VideoYouTube width={300} lien="tJjxKhjR9H4" />
+      <VideoYouTube width={300} height={169} lien="tJjxKhjR9H4" />
       <Paroles />
     </View>
   );

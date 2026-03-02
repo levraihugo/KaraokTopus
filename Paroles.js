@@ -1,3 +1,5 @@
+import { Text } from "react-native";
+
 export default function Paroles(props) {
-  return <p>À venir</p>;
+  return <Text>À venir</Text>;
 }
