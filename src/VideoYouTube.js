@@ -40,7 +40,7 @@ export default function VideoYouTube(props) {
       />
       <View>
         <Text>
-          {props.tempsEcoule}/{total}
+          {props.tempsEcoule} / {total}
         </Text>
       </View>
     </>

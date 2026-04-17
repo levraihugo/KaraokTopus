@@ -4,6 +4,12 @@ import { StyleSheet, Text, View } from "react-native";
 import VideoYouTube from "../VideoYouTube";
 import Paroles from "../Paroles";
 import * as SQLite from "expo-sqlite";
+import { useParams } from "react-router";
+import {
+  createDbIfNeeded,
+  GetChansonEtParoles,
+  UpdateParoles,
+} from "../services/chansonService";
 
 function CalculerTemps(timecode) {
   const temps = timecode.split(":");
@@ -13,6 +19,8 @@ function CalculerTemps(timecode) {
 }
 
 export default function ChansonPage() {
+  // const id = useParams();
+  const id = 1;
   const db = SQLite.useSQLiteContext();
   const [titre, setTitre] = useState("");
   const [artiste, setArtiste] = useState("");
@@ -23,23 +31,18 @@ export default function ChansonPage() {
 
   useEffect(() => {
     if (!initialise.current) {
-      async function recupererInfos(id) {
-        try {
-          const resultat = await db.getFirstAsync(
-            "SELECT Titre, Artiste, Lien, Texte, Timecodes FROM Chansons, Paroles WHERE Chansons.Id == Paroles.ID_Chanson AND Chansons.Id == " +
-              id,
-          );
+      async function recupererInfos() {
+        const resultat = await GetChansonEtParoles(id);
+        if (resultat != null) {
           setTitre(resultat.Titre);
           setArtiste(resultat.Artiste);
           setLien(resultat.Lien.split("?v=")[1]);
-          texte.current = resultat.Texte.split("\\n");
-          timecodes.current = resultat.Timecodes.split("\\n");
+          texte.current = resultat.Texte.split("\n");
+          timecodes.current = resultat.Timecodes.split("\n");
           initialise.current = true;
-        } catch (error) {
-          console.log("Erreur dans la récupération des données");
         }
       }
-      recupererInfos(1);
+      recupererInfos();
     }
   }, []);
 
@@ -115,6 +118,12 @@ export default function ChansonPage() {
 
   return (
     <View style={styles.container}>
+      {/* <SQLite.SQLiteProvider
+        databaseName="data.db"
+        // directory="../assets"
+        // onInit={createDbIfNeeded}
+        // assetSource={{ assetId: require("../assets/data.db") }}
+      > */}
       <Text>{titre}</Text>
       <Text>{artiste}</Text>
       <StatusBar style="auto" />
@@ -130,6 +139,7 @@ export default function ChansonPage() {
         // ready={ready.current}
       />
       <Paroles texte1={texte1} texte2={texte2} />
+      {/* </SQLite.SQLiteProvider> */}
     </View>
   );
 }
