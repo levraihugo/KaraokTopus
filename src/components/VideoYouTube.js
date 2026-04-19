@@ -1,8 +1,10 @@
-import { useRef, useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { Text, View } from "react-native";
 import YoutubePlayer from "react-native-youtube-iframe";
 
 async function GetTime(playerRef) {
+  // Renvoie le timecode du player YouTube
+  // String format : mm:ss
   const tot = await playerRef.current.getDuration();
   const min = Math.floor(tot / 60);
   const sec = Math.floor(tot - min * 60);
@@ -16,6 +18,7 @@ export default function VideoYouTube(props) {
   const [getDuree, setTestDuree] = useState(false);
 
   const onStateChange = useCallback((state) => {
+    // Récupère le temps total de la vidéo
     if (state === "playing" && !getDuree) {
       setTotal(GetTime(props.playerRef));
       setTestDuree(true);
@@ -36,7 +39,6 @@ export default function VideoYouTube(props) {
         play={props.playing}
         videoId={props.lien}
         onChangeState={onStateChange}
-        // onReady={onReady}
       />
       <View>
         <Text>

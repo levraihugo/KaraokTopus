@@ -1,17 +1,14 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
-import VideoYouTube from "../VideoYouTube";
-import Paroles from "../Paroles";
+import VideoYouTube from "../components/VideoYouTube";
+import Paroles from "../components/Paroles";
 import * as SQLite from "expo-sqlite";
 import { useParams } from "react-router";
-import {
-  createDbIfNeeded,
-  GetChansonEtParoles,
-  UpdateParoles,
-} from "../services/chansonService";
+import { GetChansonEtParoles } from "../services/BDDService";
 
 function CalculerTemps(timecode) {
+  // Change le temps depuis une chaîne de caractères à une valeur en millisecondes
   const temps = timecode.split(":");
   return (
     parseInt(temps[0]) * 60000 + parseInt(temps[1]) * 1000 + parseInt(temps[2])
@@ -19,17 +16,18 @@ function CalculerTemps(timecode) {
 }
 
 export default function ChansonPage() {
-  // const id = useParams();
+  // const id = useParams(); // Servira à récupérer la chanson à afficher
   const id = 1;
-  const db = SQLite.useSQLiteContext();
-  const [titre, setTitre] = useState("");
-  const [artiste, setArtiste] = useState("");
-  const [lien, setLien] = useState("");
-  const texte = useRef([""]);
-  const timecodes = useRef([""]);
-  const initialise = useRef(false);
+  const db = SQLite.useSQLiteContext(); // Base de données
+  const [titre, setTitre] = useState(""); // Titre de la chanson
+  const [artiste, setArtiste] = useState(""); // Artiste de la chanson
+  const [lien, setLien] = useState(""); // Lien YouTube de la chanson
+  const texte = useRef([""]); // Contient les paroles de la chanson
+  const timecodes = useRef([""]); // Contient les timecodes des paroles
+  const initialise = useRef(false); // Booléen pour savoir si la vidéo est prête à être lancée
 
   useEffect(() => {
+    // Récupère les informations de la chanson choisie
     if (!initialise.current) {
       async function recupererInfos() {
         const resultat = await GetChansonEtParoles(id);
@@ -47,8 +45,8 @@ export default function ChansonPage() {
   }, []);
 
   const playerRef = useRef();
-  const [tempsEcoule, setTempsEcoule] = useState("");
-  const compteur = useRef(-1);
+  const [tempsEcoule, setTempsEcoule] = useState(""); // Temps passé depuis le début de la vidéo
+  const compteur = useRef(-1); // Sert à savoir quelles paroles afficher
   const ready = useRef(false);
 
   const setOnReady = useCallback(() => {
@@ -56,32 +54,31 @@ export default function ChansonPage() {
   }, []);
 
   useEffect(() => {
-    // const interval1 = setInterval(async () => {
+    // Change la valeur du compteur pour trouver les paroles adaptées
     if (ready.current) {
       const tempsReel = tempsEcoule;
       if (tempsReel.length == 1) {
+        // Sécurité
         tempsReel = ["00", "00", "000"];
       }
       compteur.current = Math.min(
+        // Récupère le texte le plus proche du temps actuel de la vidéo
         Math.max(
-          0,
+          0, // Sécurité au cas où la fonction ne trouve rien
           timecodes.current.findLastIndex(
             (timecode) =>
               CalculerTemps(timecode) - CalculerTemps(tempsEcoule) < 0,
           ),
         ),
-        timecodes.current.length - 1,
+        timecodes.current.length - 1, // Sécurité pour ne pas prendre au delà des textes disponibles
       );
-      // majTextes();
     }
-    // }, 100);
 
-    return () => {
-      // clearInterval(interval1);
-    };
+    return () => {};
   }, [tempsEcoule]);
 
   useEffect(() => {
+    // Calcule le temps écoulé depuis le début de la vidéo
     const interval2 = setInterval(async () => {
       const sec_ecoule = await playerRef.current.getCurrentTime();
 
@@ -106,10 +103,11 @@ export default function ChansonPage() {
 
   const [playing, setPlaying] = useState(false);
 
-  const [texte1, setTexte1] = useState("...");
-  const [texte2, setTexte2] = useState("...");
+  const [texte1, setTexte1] = useState("..."); // Paroles à chanter au temps T
+  const [texte2, setTexte2] = useState("..."); // Prochaines paroles à chanter
 
   useEffect(() => {
+    // À chaque changement du compteur, on change le texte à afficher
     setTexte1(texte.current[compteur.current]);
     setTexte2(
       texte.current[Math.min(compteur.current + 1, texte.current.length - 1)],
@@ -118,28 +116,19 @@ export default function ChansonPage() {
 
   return (
     <View style={styles.container}>
-      {/* <SQLite.SQLiteProvider
-        databaseName="data.db"
-        // directory="../assets"
-        // onInit={createDbIfNeeded}
-        // assetSource={{ assetId: require("../assets/data.db") }}
-      > */}
       <Text>{titre}</Text>
       <Text>{artiste}</Text>
       <StatusBar style="auto" />
       <VideoYouTube
         width={300}
         height={169}
-        // lien="tJjxKhjR9H4"
         lien={lien}
         playerRef={playerRef}
         tempsEcoule={tempsEcoule}
         playing={playing}
         onReady={setOnReady}
-        // ready={ready.current}
       />
       <Paroles texte1={texte1} texte2={texte2} />
-      {/* </SQLite.SQLiteProvider> */}
     </View>
   );
 }

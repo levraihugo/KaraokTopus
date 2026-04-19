@@ -27,6 +27,3 @@ export default function Paroles(props) {
     </View>
   );
 }
-
-// {props.present}
-// {props.futur}
