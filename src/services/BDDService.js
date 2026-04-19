@@ -48,6 +48,25 @@ export async function GetParoles(id) {
   }
 }
 
+export async function GetParolesFromTexte(texte) {
+  // Renvoie les informations de paroles à partir de son texte
+  const db = await openDatabaseAsync("data.db");
+
+  try {
+    const resultat = await db.getFirstAsync(
+      "SELECT ID, Texte, Timecodes, ID_Chanson FROM Paroles WHERE Texte LIKE %" +
+        texte +
+        "%",
+    );
+    await db.closeAsync();
+    return resultat;
+  } catch (error) {
+    console.log("Erreur dans la récupération des données");
+    await db.closeAsync();
+    return null;
+  }
+}
+
 export async function GetChanson(id) {
   // Renvoie les informations d'une chanson à partir de son id
   const db = await openDatabaseAsync("data.db");
@@ -71,7 +90,7 @@ export async function GetChansonFromTitre(titre) {
 
   try {
     const resultat = await db.getFirstAsync(
-      "SELECT ID, Lien, Titre, Artiste FROM Chansons WHERE Titre Like %" +
+      "SELECT ID, Lien, Titre, Artiste FROM Chansons WHERE Titre LIKE %" +
         titre +
         "%",
     );
