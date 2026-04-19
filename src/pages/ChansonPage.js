@@ -1,8 +1,8 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
-import VideoYouTube from "../components/VideoYouTube";
-import Paroles from "../components/Paroles";
+import VideoYouTube from "../composants/VideoYouTube";
+import Paroles from "../composants/Paroles";
 import * as SQLite from "expo-sqlite";
 import { useParams } from "react-router";
 import { GetChansonEtParoles } from "../services/BDDService";

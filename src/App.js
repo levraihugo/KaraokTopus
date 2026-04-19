@@ -1,7 +1,7 @@
 import { StyleSheet, View } from "react-native";
-import ChansonPage from "./ChansonPage";
+import ChansonPage from "./pages/ChansonPage";
 import * as SQLite from "expo-sqlite";
-import { createDbIfNeeded } from "../services/BDDService";
+import { createDbIfNeeded } from "./services/BDDService";
 
 export default function App() {
   return (
