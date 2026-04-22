@@ -34,7 +34,7 @@ export default function ChansonPage() {
         if (resultat != null) {
           setTitre(resultat.Titre);
           setArtiste(resultat.Artiste);
-          setLien(resultat.Lien.split("?v=")[1]);
+          setLien(resultat.Lien.split("?v=")[1]); // le texte après ?v contient les informations nécessaires pour afficher la bonne vidéo
           texte.current = resultat.Texte.split("\n");
           timecodes.current = resultat.Timecodes.split("\n");
           initialise.current = true;
